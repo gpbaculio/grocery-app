@@ -1,0 +1,8 @@
+django==5.0.6
+djangorestframework==3.15.2
+mysqlclient==2.2.4
+graphene==3.3
+graphene-django==3.2.2
+django-cors-headers==4.4.0
+graphql-core==3.2.3
+django-filter==24.2
