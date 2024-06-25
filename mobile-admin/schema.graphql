@@ -1,0 +1,209 @@
+type Query {
+  product(
+    """The ID of the object"""
+    id: ID!
+  ): ProductNode
+  allProducts(offset: Int, before: String, after: String, first: Int, last: Int, title: String, price: Decimal, stock: Int): ProductNodeConnection
+  user(
+    """The ID of the object"""
+    id: ID!
+  ): UserNode
+  allUsers(offset: Int, before: String, after: String, first: Int, last: Int, fullName: String, address: String): UserNodeConnection
+  order(
+    """The ID of the object"""
+    id: ID!
+  ): OrderNode
+  allOrders(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection
+}
+
+type ProductNode implements Node {
+  """The ID of the object"""
+  id: ID!
+  title: String!
+  image: String!
+  price: Decimal!
+  stock: Int!
+  orderitemSet(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
+}
+
+"""An object with an ID"""
+interface Node {
+  """The ID of the object"""
+  id: ID!
+}
+
+"""The `Decimal` scalar type represents a python Decimal."""
+scalar Decimal
+
+type OrderItemNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [OrderItemNodeEdge]!
+}
+
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""A Relay edge containing a `OrderItemNode` and its cursor."""
+type OrderItemNodeEdge {
+  """The item at the end of the edge"""
+  node: OrderItemNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type OrderItemNode implements Node {
+  """The ID of the object"""
+  id: ID!
+  order: OrderNode!
+  product: ProductNode!
+  quantity: Int!
+}
+
+type OrderNode implements Node {
+  """The ID of the object"""
+  id: ID!
+  customer: UserNode!
+  orderDate: DateTime!
+  status: String!
+  totalAmount: Decimal
+  shippingAddress: String!
+  billingAddress: String!
+  paymentMethod: String!
+  paymentStatus: String!
+  trackingNumber: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  items(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
+}
+
+type UserNode implements Node {
+  """The ID of the object"""
+  id: ID!
+  fullName: String!
+  image: String!
+  address: String!
+  orderSet(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection!
+}
+
+type OrderNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [OrderNodeEdge]!
+}
+
+"""A Relay edge containing a `OrderNode` and its cursor."""
+type OrderNodeEdge {
+  """The item at the end of the edge"""
+  node: OrderNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+type ProductNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProductNodeEdge]!
+}
+
+"""A Relay edge containing a `ProductNode` and its cursor."""
+type ProductNodeEdge {
+  """The item at the end of the edge"""
+  node: ProductNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type UserNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [UserNodeEdge]!
+}
+
+"""A Relay edge containing a `UserNode` and its cursor."""
+type UserNodeEdge {
+  """The item at the end of the edge"""
+  node: UserNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type Mutation {
+  createProduct(input: CreateProductInput!): CreateProductPayload
+  createUser(input: CreateUserInput!): CreateUserPayload
+  createOrder(input: CreateOrderInput!): CreateOrderPayload
+}
+
+type CreateProductPayload {
+  product: ProductNode
+  clientMutationId: String
+}
+
+input CreateProductInput {
+  title: String!
+  image: String!
+  price: String!
+  stock: Int!
+  clientMutationId: String
+}
+
+type CreateUserPayload {
+  user: UserNode
+  clientMutationId: String
+}
+
+input CreateUserInput {
+  fullName: String!
+  image: String!
+  address: String!
+  clientMutationId: String
+}
+
+type CreateOrderPayload {
+  order: OrderNode
+  clientMutationId: String
+}
+
+input CreateOrderInput {
+  customerId: Int!
+  shippingAddress: String!
+  billingAddress: String!
+  paymentMethod: String!
+  paymentStatus: String
+  products: [Int]
+  quantities: [Int]
+  clientMutationId: String
+}
