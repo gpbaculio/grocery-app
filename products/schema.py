@@ -4,7 +4,8 @@ from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
 from .models import Product, User, Order, OrderItem
 import decimal
-import uuid 
+import uuid
+from django.core.exceptions import PermissionDenied
 
 class ProductNode(DjangoObjectType):
     class Meta:
@@ -56,22 +57,45 @@ class CreateProduct(relay.ClientIDMutation):
 
     product = graphene.Field(ProductNode)
 
-    def mutate_and_get_payload(self, info, title, image, price, stock):
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, title, image, price, stock):
+        user = info.context.user
+        if not user.is_superuser:
+            raise PermissionDenied("You do not have permission to add products.")
         price_decimal = decimal.Decimal(price)
         product = Product(title=title, image=image, price=price_decimal, stock=stock)
         product.save()
         return CreateProduct(product=product)
+
+class RemoveProduct(relay.ClientIDMutation):
+    class Input:
+        product_id = graphene.ID(required=True)
+
+    success = graphene.Boolean()
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, product_id):
+        user = info.context.user
+        if not user.is_superuser:
+            raise PermissionDenied("You do not have permission to remove products.")
+        try:
+            product = Product.objects.get(pk=product_id)
+            product.delete()
+            return RemoveProduct(success=True)
+        except Product.DoesNotExist:
+            return RemoveProduct(success=False)
 
 class CreateUser(relay.ClientIDMutation):
     class Input:
         full_name = graphene.String(required=True)
         image = graphene.String(required=True)
         address = graphene.String(required=True)
+        is_superuser = graphene.Boolean()  # Add this field
 
     user = graphene.Field(UserNode)
 
-    def mutate_and_get_payload(self, info, full_name, image, address):
-        user = User(full_name=full_name, image=image, address=address)
+    def mutate_and_get_payload(self, info, full_name, image, address, is_superuser=False):
+        user = User(full_name=full_name, image=image, address=address, is_superuser=is_superuser)
         user.save()
         return CreateUser(user=user)
 

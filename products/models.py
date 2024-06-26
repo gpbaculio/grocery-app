@@ -12,6 +12,7 @@ class User(models.Model):
     full_name = models.CharField(max_length=255)
     image = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
+    is_superuser = models.BooleanField(default=False)
 
 class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
