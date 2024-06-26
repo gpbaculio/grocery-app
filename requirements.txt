@@ -6,3 +6,4 @@ graphene-django==3.2.2
 django-cors-headers==4.4.0
 graphql-core==3.2.3
 django-filter==24.2
+django-graphql-jwt==0.4.0

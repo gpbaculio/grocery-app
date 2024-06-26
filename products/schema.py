@@ -1,4 +1,5 @@
 import graphene
+import graphql_jwt
 from graphene_django.types import DjangoObjectType
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
@@ -16,7 +17,7 @@ class ProductNode(DjangoObjectType):
 class UserNode(DjangoObjectType):
     class Meta:
         model = User
-        filter_fields = ['full_name', 'address']
+        filter_fields = ['full_name', 'address', 'is_superuser']
         interfaces = (relay.Node,)
 
 class OrderNode(DjangoObjectType):
@@ -38,6 +39,7 @@ class Query(graphene.ObjectType):
     all_users = DjangoFilterConnectionField(UserNode)
     order = relay.Node.Field(OrderNode)
     all_orders = DjangoFilterConnectionField(OrderNode)
+    sales_analysis = graphene.List(OrderNode)
 
     def resolve_all_products(self, info, **kwargs):
         return Product.objects.all()
@@ -46,6 +48,10 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
     def resolve_all_orders(self, info, **kwargs):
+        return Order.objects.all()
+
+    def resolve_sales_analysis(self, info, **kwargs):
+        # Implement logic for sales analysis
         return Order.objects.all()
 
 class CreateProduct(relay.ClientIDMutation):
@@ -140,7 +146,11 @@ class CreateOrder(relay.ClientIDMutation):
 
 class Mutation(graphene.ObjectType):
     create_product = CreateProduct.Field()
+    remove_product = RemoveProduct.Field()
     create_user = CreateUser.Field()
     create_order = CreateOrder.Field()
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

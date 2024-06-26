@@ -40,11 +40,25 @@ INSTALLED_APPS = [
     "graphene_django",
     "products",
     "rest_framework",
-    "corsheaders"
+    "corsheaders",
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',  # Add this
+]
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'products.schema.schema'
+    'SCHEMA': 'products.schema.schema',
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
+}
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
 }
 
 MIDDLEWARE = [
