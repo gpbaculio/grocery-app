@@ -95,7 +95,7 @@ const cacheHandler: FetchFunction = async (
 export const network = Network.create(cacheHandler);
 
 export const store = new Store(new RecordSource(), {
-  gcReleaseBufferSize: 1,
+  gcReleaseBufferSize: 10,
 });
 
 export const environment = new Environment({ network, store });
