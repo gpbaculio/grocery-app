@@ -1,45 +1,97 @@
 type Query {
   product(
-    """The ID of the object"""
+    """
+    The ID of the object
+    """
     id: ID!
   ): ProductNode
-  allProducts(offset: Int, before: String, after: String, first: Int, last: Int, title: String, price: Decimal, stock: Int): ProductNodeConnection
+  allProducts(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    title: String
+    price: Decimal
+    stock: Int
+  ): ProductNodeConnection
   user(
-    """The ID of the object"""
+    """
+    The ID of the object
+    """
     id: ID!
   ): UserNode
-  allUsers(offset: Int, before: String, after: String, first: Int, last: Int, fullName: String, address: String): UserNodeConnection
+  allUsers(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    fullName: String
+    address: String
+    isSuperuser: Boolean
+  ): UserNodeConnection
   order(
-    """The ID of the object"""
+    """
+    The ID of the object
+    """
     id: ID!
   ): OrderNode
-  allOrders(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection
+  allOrders(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    status: String
+    totalAmount: Decimal
+  ): OrderNodeConnection
+  salesAnalysis: [OrderNode]
 }
 
 type ProductNode implements Node {
-  """The ID of the object"""
+  """
+  The ID of the object
+  """
   id: ID!
   title: String!
   image: String!
   price: Decimal!
   stock: Int!
-  orderitemSet(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
+  orderitemSet(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    quantity: Int
+  ): OrderItemNodeConnection!
 }
 
-"""An object with an ID"""
+"""
+An object with an ID
+"""
 interface Node {
-  """The ID of the object"""
+  """
+  The ID of the object
+  """
   id: ID!
 }
 
-"""The `Decimal` scalar type represents a python Decimal."""
+"""
+The `Decimal` scalar type represents a python Decimal.
+"""
 scalar Decimal
 
 type OrderItemNodeConnection {
-  """Pagination data for this connection."""
+  """
+  Pagination data for this connection.
+  """
   pageInfo: PageInfo!
 
-  """Contains the nodes in this connection."""
+  """
+  Contains the nodes in this connection.
+  """
   edges: [OrderItemNodeEdge]!
 }
 
@@ -47,30 +99,46 @@ type OrderItemNodeConnection {
 The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
 """
 type PageInfo {
-  """When paginating forwards, are there more items?"""
+  """
+  When paginating forwards, are there more items?
+  """
   hasNextPage: Boolean!
 
-  """When paginating backwards, are there more items?"""
+  """
+  When paginating backwards, are there more items?
+  """
   hasPreviousPage: Boolean!
 
-  """When paginating backwards, the cursor to continue."""
+  """
+  When paginating backwards, the cursor to continue.
+  """
   startCursor: String
 
-  """When paginating forwards, the cursor to continue."""
+  """
+  When paginating forwards, the cursor to continue.
+  """
   endCursor: String
 }
 
-"""A Relay edge containing a `OrderItemNode` and its cursor."""
+"""
+A Relay edge containing a `OrderItemNode` and its cursor.
+"""
 type OrderItemNodeEdge {
-  """The item at the end of the edge"""
+  """
+  The item at the end of the edge
+  """
   node: OrderItemNode
 
-  """A cursor for use in pagination"""
+  """
+  A cursor for use in pagination
+  """
   cursor: String!
 }
 
 type OrderItemNode implements Node {
-  """The ID of the object"""
+  """
+  The ID of the object
+  """
   id: ID!
   order: OrderNode!
   product: ProductNode!
@@ -78,7 +146,9 @@ type OrderItemNode implements Node {
 }
 
 type OrderNode implements Node {
-  """The ID of the object"""
+  """
+  The ID of the object
+  """
   id: ID!
   customer: UserNode!
   orderDate: DateTime!
@@ -91,32 +161,60 @@ type OrderNode implements Node {
   trackingNumber: String
   createdAt: DateTime!
   updatedAt: DateTime!
-  items(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
+  items(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    quantity: Int
+  ): OrderItemNodeConnection!
 }
 
 type UserNode implements Node {
-  """The ID of the object"""
+  """
+  The ID of the object
+  """
   id: ID!
   fullName: String!
   image: String!
   address: String!
-  orderSet(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection!
+  isSuperuser: Boolean!
+  orderSet(
+    offset: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+    status: String
+    totalAmount: Decimal
+  ): OrderNodeConnection!
 }
 
 type OrderNodeConnection {
-  """Pagination data for this connection."""
+  """
+  Pagination data for this connection.
+  """
   pageInfo: PageInfo!
 
-  """Contains the nodes in this connection."""
+  """
+  Contains the nodes in this connection.
+  """
   edges: [OrderNodeEdge]!
 }
 
-"""A Relay edge containing a `OrderNode` and its cursor."""
+"""
+A Relay edge containing a `OrderNode` and its cursor.
+"""
 type OrderNodeEdge {
-  """The item at the end of the edge"""
+  """
+  The item at the end of the edge
+  """
   node: OrderNode
 
-  """A cursor for use in pagination"""
+  """
+  A cursor for use in pagination
+  """
   cursor: String!
 }
 
@@ -128,43 +226,71 @@ value as specified by
 scalar DateTime
 
 type ProductNodeConnection {
-  """Pagination data for this connection."""
+  """
+  Pagination data for this connection.
+  """
   pageInfo: PageInfo!
 
-  """Contains the nodes in this connection."""
+  """
+  Contains the nodes in this connection.
+  """
   edges: [ProductNodeEdge]!
 }
 
-"""A Relay edge containing a `ProductNode` and its cursor."""
+"""
+A Relay edge containing a `ProductNode` and its cursor.
+"""
 type ProductNodeEdge {
-  """The item at the end of the edge"""
+  """
+  The item at the end of the edge
+  """
   node: ProductNode
 
-  """A cursor for use in pagination"""
+  """
+  A cursor for use in pagination
+  """
   cursor: String!
 }
 
 type UserNodeConnection {
-  """Pagination data for this connection."""
+  """
+  Pagination data for this connection.
+  """
   pageInfo: PageInfo!
 
-  """Contains the nodes in this connection."""
+  """
+  Contains the nodes in this connection.
+  """
   edges: [UserNodeEdge]!
 }
 
-"""A Relay edge containing a `UserNode` and its cursor."""
+"""
+A Relay edge containing a `UserNode` and its cursor.
+"""
 type UserNodeEdge {
-  """The item at the end of the edge"""
+  """
+  The item at the end of the edge
+  """
   node: UserNode
 
-  """A cursor for use in pagination"""
+  """
+  A cursor for use in pagination
+  """
   cursor: String!
 }
 
 type Mutation {
   createProduct(input: CreateProductInput!): CreateProductPayload
+  removeProduct(input: RemoveProductInput!): RemoveProductPayload
   createUser(input: CreateUserInput!): CreateUserPayload
   createOrder(input: CreateOrderInput!): CreateOrderPayload
+
+  """
+  Obtain JSON Web Token mutation
+  """
+  tokenAuth(username: String!, password: String!): ObtainJSONWebToken
+  verifyToken(token: String): Verify
+  refreshToken(refreshToken: String): Refresh
 }
 
 type CreateProductPayload {
@@ -180,6 +306,16 @@ input CreateProductInput {
   clientMutationId: String
 }
 
+type RemoveProductPayload {
+  success: Boolean
+  clientMutationId: String
+}
+
+input RemoveProductInput {
+  productId: ID!
+  clientMutationId: String
+}
+
 type CreateUserPayload {
   user: UserNode
   clientMutationId: String
@@ -189,6 +325,7 @@ input CreateUserInput {
   fullName: String!
   image: String!
   address: String!
+  isSuperuser: Boolean
   clientMutationId: String
 }
 
@@ -206,4 +343,32 @@ input CreateOrderInput {
   products: [Int]
   quantities: [Int]
   clientMutationId: String
+}
+
+"""
+Obtain JSON Web Token mutation
+"""
+type ObtainJSONWebToken {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+  refreshToken: String!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type Verify {
+  payload: GenericScalar!
+}
+
+type Refresh {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+  refreshToken: String!
 }

@@ -8,12 +8,13 @@ type Query {
     """The ID of the object"""
     id: ID!
   ): UserNode
-  allUsers(offset: Int, before: String, after: String, first: Int, last: Int, fullName: String, address: String): UserNodeConnection
+  allUsers(offset: Int, before: String, after: String, first: Int, last: Int, fullName: String, address: String, isSuperuser: Boolean): UserNodeConnection
   order(
     """The ID of the object"""
     id: ID!
   ): OrderNode
   allOrders(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection
+  salesAnalysis: [OrderNode]
 }
 
 type ProductNode implements Node {
@@ -100,6 +101,7 @@ type UserNode implements Node {
   fullName: String!
   image: String!
   address: String!
+  isSuperuser: Boolean!
   orderSet(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection!
 }
 
@@ -163,8 +165,14 @@ type UserNodeEdge {
 
 type Mutation {
   createProduct(input: CreateProductInput!): CreateProductPayload
+  removeProduct(input: RemoveProductInput!): RemoveProductPayload
   createUser(input: CreateUserInput!): CreateUserPayload
   createOrder(input: CreateOrderInput!): CreateOrderPayload
+
+  """Obtain JSON Web Token mutation"""
+  tokenAuth(username: String!, password: String!): ObtainJSONWebToken
+  verifyToken(token: String): Verify
+  refreshToken(refreshToken: String): Refresh
 }
 
 type CreateProductPayload {
@@ -180,6 +188,16 @@ input CreateProductInput {
   clientMutationId: String
 }
 
+type RemoveProductPayload {
+  success: Boolean
+  clientMutationId: String
+}
+
+input RemoveProductInput {
+  productId: ID!
+  clientMutationId: String
+}
+
 type CreateUserPayload {
   user: UserNode
   clientMutationId: String
@@ -189,6 +207,7 @@ input CreateUserInput {
   fullName: String!
   image: String!
   address: String!
+  isSuperuser: Boolean
   clientMutationId: String
 }
 
@@ -206,4 +225,30 @@ input CreateOrderInput {
   products: [Int]
   quantities: [Int]
   clientMutationId: String
+}
+
+"""Obtain JSON Web Token mutation"""
+type ObtainJSONWebToken {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+  refreshToken: String!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type Verify {
+  payload: GenericScalar!
+}
+
+type Refresh {
+  payload: GenericScalar!
+  refreshExpiresIn: Int!
+  token: String!
+  refreshToken: String!
 }
