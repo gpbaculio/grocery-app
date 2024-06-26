@@ -59,12 +59,14 @@ const cacheHandler: FetchFunction = async (
   // Online scenario: fetch data from server
   if (isMutation(request)) {
     queryResponseCache.clear();
+
     const mutationResult = await fetchGraphQL(
       request,
       variables,
       cacheConfig,
       uploadables
     );
+
     return mutationResult;
   }
 
