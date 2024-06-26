@@ -10,7 +10,7 @@ import {
   RecordSource,
 } from "relay-runtime";
 
-import { fetchGraphQL } from "./utils/fetchGraphQL";
+import { fetchGraphQL } from "@/utils/fetchGraphQL";
 
 enum operationKind {
   MUTATION = "mutation",
