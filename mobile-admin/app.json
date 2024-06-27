@@ -16,13 +16,15 @@
       "supportsTablet": true,
       "entitlements": {
         "com.apple.developer.networking.wifi-info": true
-      }
+      },
+      "bundleIdentifier": "com.philsari.admin"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.philsari.admin"
     },
     "web": {
       "bundler": "metro",
