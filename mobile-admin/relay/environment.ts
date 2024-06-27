@@ -163,12 +163,14 @@ const cacheHandler: FetchFunction = async (
 
     if (fromServer) {
       queryResponseCache.set(queryID, variables, fromServer);
+
       await saveResponseToSQLite(queryID, variables, fromServer);
     }
 
     return fromServer;
   } else {
     const fromSQLite = await getResponseFromSQLite(queryID, variables);
+
     if (fromSQLite) {
       return fromSQLite;
     } else {
