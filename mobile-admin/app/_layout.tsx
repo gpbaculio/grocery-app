@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import * as ScreenOrientation from "expo-screen-orientation";
 import { ThemeProvider } from "@shopify/restyle";
 
 import theme from "@/constants/theme";
@@ -16,8 +17,15 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    const onLoadAsync = async () => {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.LANDSCAPE_LEFT
+      );
+      await SplashScreen.hideAsync();
+    };
+
     if (loaded) {
-      SplashScreen.hideAsync();
+      onLoadAsync();
     }
   }, [loaded]);
 

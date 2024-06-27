@@ -45,7 +45,8 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "react-relay": "^17.0.0",
-    "relay-runtime": "^17.0.0"
+    "relay-runtime": "^17.0.0",
+    "expo-screen-orientation": "~7.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
