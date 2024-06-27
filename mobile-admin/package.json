@@ -43,7 +43,9 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "react-relay": "^17.0.0",
-    "relay-runtime": "^17.0.0"
+    "relay-runtime": "^17.0.0",
+    "expo-sqlite": "~14.0.3",
+    "expo-network": "~6.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

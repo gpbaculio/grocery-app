@@ -11,8 +11,30 @@ import {
   Variables,
 } from "relay-runtime";
 import type { FetchFunction, IEnvironment } from "relay-runtime";
+import * as SQLite from "expo-sqlite";
+import * as ExpoNetwork from "expo-network";
 
 export const GRAPHQL_URL = `http://localhost:8000/graphql`;
+
+enum operationKind {
+  MUTATION = "mutation",
+  QUERY = "query",
+}
+
+export const isMutation = (request: RequestParameters): boolean => {
+  return request.operationKind === operationKind.MUTATION;
+};
+
+export const isQuery = (request: RequestParameters): boolean => {
+  return request.operationKind === operationKind.QUERY;
+};
+
+const oneMinute = 60 * 1000;
+
+const queryResponseCache = new QueryResponseCache({
+  size: 250,
+  ttl: oneMinute,
+});
 
 const getRequestBody = (
   request: RequestParameters,
@@ -30,6 +52,37 @@ const getRequestBody = (
   }
 
   return JSON.stringify({ query: request.text, variables });
+};
+
+const saveResponseToSQLite = async (
+  queryID: string,
+  variables: Variables,
+  response: GraphQLResponse
+) => {
+  const db = SQLite.useSQLiteContext();
+  const variablesString = JSON.stringify(variables);
+  const responseString = JSON.stringify(response);
+
+  db.withExclusiveTransactionAsync(async (tx) => {
+    await tx.runAsync(
+      "INSERT OR REPLACE INTO graphql_cache (query_id, variables, response) VALUES (?, ?, ?)",
+      [queryID, variablesString, responseString]
+    );
+  });
+};
+
+const getResponseFromSQLite = async (queryID: string, variables: Variables) => {
+  const db = SQLite.useSQLiteContext();
+  const variablesString = JSON.stringify(variables);
+
+  const result = await db.getFirstAsync(
+    "SELECT response FROM graphql_cache WHERE query_id = ? AND variables = ?",
+    [queryID, variablesString]
+  );
+
+  const resultJson = JSON.parse(result as unknown as string);
+
+  return resultJson as GraphQLResponse;
 };
 
 async function fetchGraphQL(
@@ -60,26 +113,11 @@ async function fetchGraphQL(
   return result;
 }
 
-enum operationKind {
-  MUTATION = "mutation",
-  QUERY = "query",
-}
+const getNetworkStatus = async () => {
+  const networkState = await ExpoNetwork.getNetworkStateAsync();
 
-export const isMutation = (request: RequestParameters): boolean =>
-  request.operationKind === operationKind.MUTATION;
-
-export const isQuery = (request: RequestParameters): boolean =>
-  request.operationKind === operationKind.QUERY;
-
-export const forceFetch = (cacheConfig: CacheConfig): boolean =>
-  !!(cacheConfig && cacheConfig.force);
-
-const oneMinute = 60 * 1000;
-
-const queryResponseCache = new QueryResponseCache({
-  size: 250,
-  ttl: oneMinute,
-});
+  return networkState.isInternetReachable;
+};
 
 const cacheHandler: FetchFunction = async (
   request,
@@ -91,6 +129,7 @@ const cacheHandler: FetchFunction = async (
 
   if (isMutation(request)) {
     queryResponseCache.clear();
+
     const mutationResult = await fetchGraphQL(
       request,
       variables,
@@ -101,22 +140,41 @@ const cacheHandler: FetchFunction = async (
     return mutationResult;
   }
 
+  const isNetworkAvailable = await getNetworkStatus();
+
   const fromCache = queryResponseCache.get(queryID, variables);
 
-  if (isQuery(request) && fromCache !== null && !forceFetch(cacheConfig))
+  if (
+    isNetworkAvailable &&
+    isQuery(request) &&
+    fromCache !== null &&
+    !cacheConfig.force
+  ) {
     return fromCache;
+  }
 
-  const fromServer = await fetchGraphQL(
-    request,
-    variables,
-    cacheConfig,
-    uploadables
-  );
+  if (isNetworkAvailable) {
+    const fromServer = await fetchGraphQL(
+      request,
+      variables,
+      cacheConfig,
+      uploadables
+    );
 
-  if (fromServer)
-    queryResponseCache.set(queryID, variables, fromServer as GraphQLResponse);
+    if (fromServer) {
+      queryResponseCache.set(queryID, variables, fromServer);
+      await saveResponseToSQLite(queryID, variables, fromServer);
+    }
 
-  return fromServer;
+    return fromServer;
+  } else {
+    const fromSQLite = await getResponseFromSQLite(queryID, variables);
+    if (fromSQLite) {
+      return fromSQLite;
+    } else {
+      throw new Error("No cached data available and network is offline");
+    }
+  }
 };
 
 export function createEnvironment(): IEnvironment {
