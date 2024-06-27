@@ -163,7 +163,6 @@ const cacheHandler: FetchFunction = async (
 
     if (fromServer) {
       queryResponseCache.set(queryID, variables, fromServer);
-
       await saveResponseToSQLite(queryID, variables, fromServer);
     }
 
@@ -182,5 +181,6 @@ const cacheHandler: FetchFunction = async (
 export function createEnvironment(): IEnvironment {
   const network = Network.create(cacheHandler);
   const store = new Store(new RecordSource());
+
   return new Environment({ store, network });
 }
