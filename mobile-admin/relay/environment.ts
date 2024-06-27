@@ -3,7 +3,6 @@ import {
   Environment,
   GraphQLResponse,
   Network,
-  Observable,
   QueryResponseCache,
   RecordSource,
   RequestParameters,
