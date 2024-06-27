@@ -1,7 +1,11 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    plugins: ["relay", "react-native-reanimated/plugin"],
+    plugins: [
+      "babel-plugin-react-compiler",
+      "relay",
+      "react-native-reanimated/plugin",
+    ],
     presets: ["babel-preset-expo"],
   };
 };
