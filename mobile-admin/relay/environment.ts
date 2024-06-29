@@ -13,6 +13,7 @@ import {
 import type { FetchFunction, IEnvironment } from "relay-runtime";
 import * as SQLite from "expo-sqlite";
 import * as ExpoNetwork from "expo-network";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const GRAPHQL_URL = `http://localhost:8000/graphql/`;
 
@@ -59,11 +60,19 @@ const saveResponseToSQLite = async (
   variables: Variables,
   response: GraphQLResponse
 ) => {
-  const db = SQLite.useSQLiteContext();
+  const db = await SQLite.openDatabaseAsync("philsari.db");
   const variablesString = JSON.stringify(variables);
   const responseString = JSON.stringify(response);
 
   db.withExclusiveTransactionAsync(async (tx) => {
+    await tx.runAsync(
+      `CREATE TABLE IF NOT EXISTS graphql_cache (
+          query_id TEXT PRIMARY KEY,
+          variables TEXT,
+          response TEXT
+      );`
+    );
+
     await tx.runAsync(
       "INSERT OR REPLACE INTO graphql_cache (query_id, variables, response) VALUES (?, ?, ?)",
       [queryID, variablesString, responseString]
@@ -72,7 +81,7 @@ const saveResponseToSQLite = async (
 };
 
 const getResponseFromSQLite = async (queryID: string, variables: Variables) => {
-  const db = SQLite.useSQLiteContext();
+  const db = await SQLite.openDatabaseAsync("philsari.db");
   const variablesString = JSON.stringify(variables);
 
   const result = await db.getFirstAsync(
@@ -85,6 +94,22 @@ const getResponseFromSQLite = async (queryID: string, variables: Variables) => {
   return resultJson as GraphQLResponse;
 };
 
+const CSRF_TOKEN_URL = "http://localhost:8000/csrf/";
+
+async function fetchCsrfToken() {
+  try {
+    const response = await fetch(CSRF_TOKEN_URL);
+    if (!response.ok) {
+      throw new Error("Failed to fetch CSRF token");
+    }
+    const { csrfToken } = await response.json();
+    return csrfToken;
+  } catch (error) {
+    console.error("Error fetching CSRF token:", error);
+    return null;
+  }
+}
+
 async function fetchGraphQL(
   request: RequestParameters,
   variables: Variables,
@@ -93,12 +118,32 @@ async function fetchGraphQL(
 ): Promise<GraphQLResponse> {
   const body = getRequestBody(request, variables, uploadables);
 
+  const token = await AsyncStorage.getItem("token");
+  let csrfToken = await AsyncStorage.getItem("csrfToken");
+  console.log("csrfToken ", csrfToken);
+  // Fetch CSRF token if not already set
+  if (!csrfToken) {
+    csrfToken = await fetchCsrfToken();
+    if (csrfToken) {
+      // Store CSRF token for future use
+      await AsyncStorage.setItem("csrfToken", csrfToken);
+    }
+  }
+
   const headers: HeadersInit = {
     Accept: uploadables ? "*/*" : "application/json",
   };
 
   if (!uploadables) {
     headers["Content-Type"] = "application/json";
+  }
+
+  if (token) {
+    headers["Authorization"] = token;
+  }
+
+  if (csrfToken) {
+    headers["X-CSRFToken"] = csrfToken;
   }
 
   const response = await fetch(GRAPHQL_URL, {
