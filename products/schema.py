@@ -57,19 +57,6 @@ class Query(graphene.ObjectType):
 
     def resolve_test(self, info):
         return "hello world"
-    
-class CSRFTokenMutation(relay.ClientIDMutation):
-    csrf_token = graphene.String()
-
-    class Input:
-        pass
-        # No input fields needed for fetching CSRF token
-
-    @classmethod
-    def mutate_and_get_payload(cls, input, info):
-        request = info.context
-        token = get_token(request)
-        return CSRFTokenMutation(csrf_token=token)
 
 class CreateProduct(relay.ClientIDMutation):
     class Input:
@@ -170,7 +157,6 @@ class Mutation(graphene.ObjectType):
     create_order = CreateOrder.Field()
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
-    get_csrf_token = CSRFTokenMutation.Field()
+    refresh_token = graphql_jwt.Refresh.Field() 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
