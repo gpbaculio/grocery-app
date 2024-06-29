@@ -46,12 +46,16 @@ class ViewerType(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     viewer = graphene.Field(ViewerType)
+    test = graphene.String()  
  
     @login_required
     def resolve_viewer(self, info):
         user = info.context.user
         # Assuming `info.context.user` is already authenticated
         return ViewerType(user=user)
+    
+    def resolve_test(self, info):
+        return "hello world"
 
 class CreateProduct(relay.ClientIDMutation):
     class Input:
