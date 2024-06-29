@@ -3,21 +3,26 @@ import graphql_jwt
 from graphene_django.types import DjangoObjectType
 from graphene import relay
 from graphene_django.filter import DjangoFilterConnectionField
-from .models import Product, User, Order, OrderItem
+from graphql_jwt.decorators import login_required
+from .models import Product, Order, OrderItem
 import decimal
 import uuid
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 class ProductNode(DjangoObjectType):
     class Meta:
         model = Product
         filter_fields = ['title', 'price', 'stock']
         interfaces = (relay.Node,)
 
+
 class UserNode(DjangoObjectType):
     class Meta:
         model = User
-        filter_fields = ['full_name', 'address', 'is_superuser']
+        fields = ('id', 'username', 'email')  # Define fields you want to expose
         interfaces = (relay.Node,)
 
 class OrderNode(DjangoObjectType):
@@ -32,27 +37,21 @@ class OrderItemNode(DjangoObjectType):
         filter_fields = ['quantity']
         interfaces = (relay.Node,)
 
-class Query(graphene.ObjectType):
+class ViewerType(graphene.ObjectType):
+    user = graphene.Field(UserNode)
     product = relay.Node.Field(ProductNode)
     all_products = DjangoFilterConnectionField(ProductNode)
-    user = relay.Node.Field(UserNode)
-    all_users = DjangoFilterConnectionField(UserNode)
     order = relay.Node.Field(OrderNode)
     all_orders = DjangoFilterConnectionField(OrderNode)
-    sales_analysis = graphene.List(OrderNode)
 
-    def resolve_all_products(self, info, **kwargs):
-        return Product.objects.all()
-
-    def resolve_all_users(self, info, **kwargs):
-        return User.objects.all()
-
-    def resolve_all_orders(self, info, **kwargs):
-        return Order.objects.all()
-
-    def resolve_sales_analysis(self, info, **kwargs):
-        # Implement logic for sales analysis
-        return Order.objects.all()
+class Query(graphene.ObjectType):
+    viewer = graphene.Field(ViewerType)
+ 
+    @login_required
+    def resolve_viewer(self, info):
+        user = info.context.user
+        # Assuming `info.context.user` is already authenticated
+        return ViewerType(user=user)
 
 class CreateProduct(relay.ClientIDMutation):
     class Input:
