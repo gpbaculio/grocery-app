@@ -1,20 +1,35 @@
 type Query {
+  viewer: ViewerType
+  test: String
+}
+
+type ViewerType {
+  user: UserNode
   product(
     """The ID of the object"""
     id: ID!
   ): ProductNode
   allProducts(offset: Int, before: String, after: String, first: Int, last: Int, title: String, price: Decimal, stock: Int): ProductNodeConnection
-  user(
-    """The ID of the object"""
-    id: ID!
-  ): UserNode
-  allUsers(offset: Int, before: String, after: String, first: Int, last: Int, fullName: String, address: String, isSuperuser: Boolean): UserNodeConnection
   order(
     """The ID of the object"""
     id: ID!
   ): OrderNode
   allOrders(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection
-  salesAnalysis: [OrderNode]
+}
+
+type UserNode implements Node {
+  """The ID of the object"""
+  id: ID!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
+  username: String!
+  email: String!
+}
+
+"""An object with an ID"""
+interface Node {
+  """The ID of the object"""
+  id: ID!
 }
 
 type ProductNode implements Node {
@@ -25,12 +40,6 @@ type ProductNode implements Node {
   price: Decimal!
   stock: Int!
   orderitemSet(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
-}
-
-"""An object with an ID"""
-interface Node {
-  """The ID of the object"""
-  id: ID!
 }
 
 """The `Decimal` scalar type represents a python Decimal."""
@@ -81,7 +90,6 @@ type OrderItemNode implements Node {
 type OrderNode implements Node {
   """The ID of the object"""
   id: ID!
-  customer: UserNode!
   orderDate: DateTime!
   status: String!
   totalAmount: Decimal
@@ -93,33 +101,6 @@ type OrderNode implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
   items(offset: Int, before: String, after: String, first: Int, last: Int, quantity: Int): OrderItemNodeConnection!
-}
-
-type UserNode implements Node {
-  """The ID of the object"""
-  id: ID!
-  fullName: String!
-  image: String!
-  address: String!
-  isSuperuser: Boolean!
-  orderSet(offset: Int, before: String, after: String, first: Int, last: Int, status: String, totalAmount: Decimal): OrderNodeConnection!
-}
-
-type OrderNodeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [OrderNodeEdge]!
-}
-
-"""A Relay edge containing a `OrderNode` and its cursor."""
-type OrderNodeEdge {
-  """The item at the end of the edge"""
-  node: OrderNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
 }
 
 """
@@ -146,18 +127,18 @@ type ProductNodeEdge {
   cursor: String!
 }
 
-type UserNodeConnection {
+type OrderNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [UserNodeEdge]!
+  edges: [OrderNodeEdge]!
 }
 
-"""A Relay edge containing a `UserNode` and its cursor."""
-type UserNodeEdge {
+"""A Relay edge containing a `OrderNode` and its cursor."""
+type OrderNodeEdge {
   """The item at the end of the edge"""
-  node: UserNode
+  node: OrderNode
 
   """A cursor for use in pagination"""
   cursor: String!
