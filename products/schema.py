@@ -9,6 +9,7 @@ import decimal
 import uuid
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
+from django.middleware.csrf import get_token
 
 
 User = get_user_model()
@@ -46,16 +47,21 @@ class ViewerType(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     viewer = graphene.Field(ViewerType)
-    test = graphene.String()  
- 
+    test = graphene.String() 
+    csrf_token = graphene.String()
+
     @login_required
     def resolve_viewer(self, info):
         user = info.context.user
         # Assuming `info.context.user` is already authenticated
         return ViewerType(user=user)
-    
+
     def resolve_test(self, info):
         return "hello world"
+
+    def resolve_csrf_token(self, info):
+        request = info.context
+        return get_token(request)
 
 class CreateProduct(relay.ClientIDMutation):
     class Input:

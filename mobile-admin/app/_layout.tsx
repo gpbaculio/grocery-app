@@ -7,6 +7,7 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import { ThemeProvider } from "@shopify/restyle";
 
 import theme from "@/constants/theme";
+import RelayEnvironment from "@/relay/RelayEnvironment";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,15 +35,17 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Stack initialRouteName="(authentication)">
-        <Stack.Screen
-          name="(authentication)"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <RelayEnvironment>
+      <ThemeProvider theme={theme}>
+        <Stack initialRouteName="(authentication)">
+          <Stack.Screen
+            name="(authentication)"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </ThemeProvider>
+    </RelayEnvironment>
   );
 }

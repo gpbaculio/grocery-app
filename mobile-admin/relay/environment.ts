@@ -14,7 +14,7 @@ import type { FetchFunction, IEnvironment } from "relay-runtime";
 import * as SQLite from "expo-sqlite";
 import * as ExpoNetwork from "expo-network";
 
-export const GRAPHQL_URL = `http://localhost:8000/graphql`;
+export const GRAPHQL_URL = `http://localhost:8000/graphql/`;
 
 enum operationKind {
   MUTATION = "mutation",

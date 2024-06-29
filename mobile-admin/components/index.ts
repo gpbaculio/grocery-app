@@ -19,6 +19,7 @@ import {
 import Animated from "react-native-reanimated";
 
 import { Theme } from "@/constants/theme";
+import ErrorBoundaryWithRetry from "./ErrorBoundaryWithRetry";
 
 const createContainer = <T>(Component: React.ComponentType<T>) => {
   return createRestyleComponent<
@@ -47,4 +48,5 @@ export {
   DynamicPressable,
   DynamicTouchableOpacity,
   DynamicKeyboardAvoidingView,
+  ErrorBoundaryWithRetry,
 };
