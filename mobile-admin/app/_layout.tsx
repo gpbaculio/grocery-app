@@ -35,8 +35,12 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack initialRouteName="(authentication)">
+        <Stack.Screen
+          name="(authentication)"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>
