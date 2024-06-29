@@ -89,9 +89,7 @@ const getResponseFromSQLite = async (queryID: string, variables: Variables) => {
     [queryID, variablesString]
   );
 
-  const resultJson = JSON.parse(result as unknown as string);
-
-  return resultJson as GraphQLResponse;
+  return result as GraphQLResponse;
 };
 
 const CSRF_TOKEN_URL = "http://localhost:8000/csrf/";
@@ -120,7 +118,7 @@ async function fetchGraphQL(
 
   const token = await AsyncStorage.getItem("token");
   let csrfToken = await AsyncStorage.getItem("csrfToken");
-  console.log("csrfToken ", csrfToken);
+
   // Fetch CSRF token if not already set
   if (!csrfToken) {
     csrfToken = await fetchCsrfToken();
@@ -214,7 +212,6 @@ const cacheHandler: FetchFunction = async (
     return fromServer;
   } else {
     const fromSQLite = await getResponseFromSQLite(queryID, variables);
-
     if (fromSQLite) {
       return fromSQLite;
     } else {

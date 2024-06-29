@@ -1,5 +1,5 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { DynamicText } from "..";
+import { DynamicText, DynamicView } from "..";
 import { indexTestQuery } from "./__generated__/indexTestQuery.graphql";
 
 const indexTestQueryGraphQL = graphql`
@@ -19,7 +19,11 @@ const Result = ({ fetchKey }: ResultProps) => {
     { fetchKey }
   );
 
-  return <DynamicText>{test}</DynamicText>;
+  return (
+    <DynamicView flex={1} variant="centerItems">
+      <DynamicText>{test}!!Phil!!hehe</DynamicText>
+    </DynamicView>
+  );
 };
 
 export default Result;
