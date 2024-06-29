@@ -3,6 +3,7 @@ import React from "react";
 import { RelayEnvironmentProvider } from "react-relay";
 
 import { createEnvironment } from "./environment";
+import { SQLiteProvider } from "expo-sqlite";
 
 export default function RelayEnvironment({
   children,
@@ -12,8 +13,10 @@ export default function RelayEnvironment({
   const environment = createEnvironment();
 
   return (
-    <RelayEnvironmentProvider environment={environment}>
-      {children}
-    </RelayEnvironmentProvider>
+    <SQLiteProvider databaseName="philsari.db">
+      <RelayEnvironmentProvider environment={environment}>
+        {children}
+      </RelayEnvironmentProvider>
+    </SQLiteProvider>
   );
 }
